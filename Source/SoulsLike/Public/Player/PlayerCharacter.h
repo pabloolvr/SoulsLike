@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "PlayerCharacter.generated.h"
 
 class UParticleSystemComponent;
@@ -11,6 +12,8 @@ class UCharacterMovementComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class SOULSLIKE_API APlayerCharacter : public ACharacter
@@ -47,10 +50,16 @@ private:
     UPROPERTY(VisibleAnywhere)
     UGroomComponent* Eyebrows;
 
-    void MoveForward(float AxisValue);
-    void MoveRight(float AxisValue);
-    void Turn(float AxisValue);
-    void LookUp(float AxisValue);
-    void ParticleToggle();
+    UPROPERTY(EditAnywhere, Category = Input)
+    UInputMappingContext* InputContext;
 
+    UPROPERTY(EditAnywhere, Category = Input)
+    UInputAction* CharacterMovementAction;
+
+    UPROPERTY(EditAnywhere, Category = Input)
+    UInputAction* CameraMovementAction;
+
+    void MoveCharacter(const FInputActionValue& AxisValue);
+    void MoveCamera(const FInputActionValue& AxisValue);
+    void ParticleToggle();
 };

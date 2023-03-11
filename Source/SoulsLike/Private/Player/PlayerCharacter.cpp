@@ -9,6 +9,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GroomComponent.h"
+#include <EnhancedInputComponent.h>
+#include <EnhancedInputSubsystems.h>
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -66,7 +68,20 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+    
+    // Make sure that we have a valid PlayerController.
+    if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+    {
+        // Get the Enhanced Input Local Player Subsystem from the Local Player related to our Player Controller.
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+        {
+            // PawnClientRestart can run more than once in an Actor's lifetime, so start by clearing out any leftover mappings.
+            Subsystem->ClearAllMappings();
+
+            // Add each mapping context, along with their priority values. Higher values outprioritize lower values.
+            Subsystem->AddMappingContext(InputContext, 0);
+        }
+    }
 }
 
 // Called every frame
@@ -81,51 +96,40 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) 
+    {
+        EnhancedInputComponent->BindAction(CharacterMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCharacter);
+        EnhancedInputComponent->BindAction(CameraMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCamera);
+    }
+
+    /*
     //InInputComponent->BindAction("ParticleToggle", IE_Pressed, this, &APlayerCharacter::ParticleToggle);
     PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
     PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::Turn);
     PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::LookUp);
+    */
 }
 
-void APlayerCharacter::MoveForward(float AxisValue)
+void APlayerCharacter::MoveCharacter(const FInputActionValue& AxisValue)
 {
-    //GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, TEXT("Moving forward"));
+    const FVector2d MovementVector = AxisValue.Get<FVector2D>();
 
-    if (Controller && AxisValue != 0.f) 
-    {
-        const FRotator ControlRotation = GetControlRotation();
-        const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
-        const FVector LookDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-        AddMovementInput(LookDirection, AxisValue);
-    }
-
-    //PlayerMovementComponent->AddInputVector(GetActorForwardVector() * AxisValue);
-}
-
-void APlayerCharacter::MoveRight(float AxisValue)
-{
-    //GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, TEXT("Moving right"));
+    const FRotator ControlRotation = Controller->GetControlRotation();
+    const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
     
-    if (Controller && AxisValue != 0.f)
-    {
-        const FRotator ControlRotation = GetControlRotation();
-        const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
-        const FVector LookDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-        AddMovementInput(LookDirection, AxisValue);
-    }
-    
-    //PlayerMovementComponent->AddInputVector(GetActorRightVector() * AxisValue);
+    const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+    AddMovementInput(ForwardDirection, MovementVector.Y);
+    const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+    AddMovementInput(RightDirection, MovementVector.X);
 }
 
-void APlayerCharacter::Turn(float AxisValue)
+void APlayerCharacter::MoveCamera(const FInputActionValue& AxisValue)
 {
-    AddControllerYawInput(AxisValue);
-}
+    const FVector2d LookVector = AxisValue.Get<FVector2D>();
 
-void APlayerCharacter::LookUp(float AxisValue)
-{
-    AddControllerPitchInput(AxisValue);
+    AddControllerYawInput(LookVector.X);
+    AddControllerPitchInput(LookVector.Y);
 }
 
 void APlayerCharacter::ParticleToggle()

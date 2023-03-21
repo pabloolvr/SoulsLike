@@ -88,7 +88,6 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -101,20 +100,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(CharacterMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCharacter);
         EnhancedInputComponent->BindAction(CameraMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCamera);
     }
-
-    /*
-    //InInputComponent->BindAction("ParticleToggle", IE_Pressed, this, &APlayerCharacter::ParticleToggle);
-    PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
-    PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::Turn);
-    PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::LookUp);
-    */
 }
 
 void APlayerCharacter::MoveCharacter(const FInputActionValue& AxisValue)
 {
     const FVector2d MovementVector = AxisValue.Get<FVector2D>();
-
+    
     const FRotator ControlRotation = Controller->GetControlRotation();
     const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
     
@@ -138,5 +129,10 @@ void APlayerCharacter::ParticleToggle()
     {
         ParticleSystem->ToggleActive();
     }
+}
+
+void APlayerCharacter::SprintToggle()
+{
+
 }
 

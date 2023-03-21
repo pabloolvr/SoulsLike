@@ -59,7 +59,11 @@ private:
     UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* CameraMovementAction;
 
+    UPROPERTY(EditAnywhere, Category = Gameplay)
+    bool IsSprinting;
+
     void MoveCharacter(const FInputActionValue& AxisValue);
     void MoveCamera(const FInputActionValue& AxisValue);
     void ParticleToggle();
+    void SprintToggle();
 };

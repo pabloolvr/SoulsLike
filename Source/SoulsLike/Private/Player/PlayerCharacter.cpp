@@ -106,6 +106,8 @@ void APlayerCharacter::MoveCharacter(const FInputActionValue& AxisValue)
 {
     const FVector2d MovementVector = AxisValue.Get<FVector2D>();
     
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, MovementVector.ToString());
+
     const FRotator ControlRotation = Controller->GetControlRotation();
     const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
     
@@ -133,6 +135,6 @@ void APlayerCharacter::ParticleToggle()
 
 void APlayerCharacter::SprintToggle()
 {
-
+    //GetCharacterMovement()->speedch
 }
 

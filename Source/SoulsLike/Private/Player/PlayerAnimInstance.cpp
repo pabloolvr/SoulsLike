@@ -11,14 +11,20 @@ void UPlayerAnimInstance::NativeInitializeAnimation()
     PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
     if (PlayerCharacter) 
     {
-        PlayerCharacterMovement = PlayerCharacter->GetCharacterMovement();
+        CharacterMovement = PlayerCharacter->GetCharacterMovement();
     }
 }
 
 void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
-    if (PlayerCharacterMovement)
+    if (CharacterMovement)
     {
-        GroundSpeed = UKismetMathLibrary::VSizeXY(PlayerCharacterMovement->Velocity);
+        GroundSpeed = UKismetMathLibrary::VSizeXY(CharacterMovement->Velocity);
+        IsBackstepping = PlayerCharacter->IsBackstepping();
     }
+}
+
+void UPlayerAnimInstance::StopBackstep()
+{
+    PlayerCharacter->StopBackstep();   
 }

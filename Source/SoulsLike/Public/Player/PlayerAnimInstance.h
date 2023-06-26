@@ -20,13 +20,19 @@ class SOULSLIKE_API UPlayerAnimInstance : public UAnimInstance
 public:
     virtual void NativeInitializeAnimation() override;
     virtual void NativeUpdateAnimation(float DeltaTime) override;
+    
+    UFUNCTION(BlueprintCallable, Category = Input)
+    void StopBackstep();
 
-    UPROPERTY(BlueprintReadOnly)
+    UPROPERTY(BlueprintReadOnly, Category = Character)
     class APlayerCharacter* PlayerCharacter;
     
     UPROPERTY(BlueprintReadOnly, Category = Movement)
-    class UCharacterMovementComponent* PlayerCharacterMovement;
+    class UCharacterMovementComponent* CharacterMovement;
 
     UPROPERTY(BlueprintReadOnly, Category = Movement)
     float GroundSpeed;
+
+    UPROPERTY(BlueprintReadOnly, Category = Movement)
+    bool IsBackstepping;
 };

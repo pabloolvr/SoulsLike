@@ -28,26 +28,32 @@ public:
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+    UFUNCTION(BlueprintCallable, Category = Input)
+    bool IsBackstepping();
+
+    UFUNCTION(BlueprintCallable, Category = Input)
+    void StopBackstep();
+
 protected:
 	virtual void BeginPlay() override;
 
 private:
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = Components)
     UParticleSystemComponent* ParticleSystem;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = Components)
     UCharacterMovementComponent* PlayerMovementComponent;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = Components)
     USpringArmComponent* SpringArm;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = Components)
     UCameraComponent* Camera;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = Components)
     UGroomComponent* Hair;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = Components)
     UGroomComponent* Eyebrows;
 
     UPROPERTY(EditAnywhere, Category = Input)
@@ -59,11 +65,22 @@ private:
     UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* CameraMovementAction;
 
+    UPROPERTY(EditAnywhere, Category = Input)
+    UInputAction* BackstepAction;
+
+    UPROPERTY(VisibleAnywhere, Category = Gameplay)
+    bool bIsSprinting;
+
+    UPROPERTY(VisibleAnywhere, Category = Gameplay)
+    bool bIsBackstepping;
+    
     UPROPERTY(EditAnywhere, Category = Gameplay)
-    bool IsSprinting;
+    float BackstepCooldown;
 
     void MoveCharacter(const FInputActionValue& AxisValue);
     void MoveCamera(const FInputActionValue& AxisValue);
+    void StartBackstep();
+    void Roll(const FInputActionValue& Value);
+    void Sprint();
     void ParticleToggle();
-    void SprintToggle();
 };

@@ -99,6 +99,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     {
         EnhancedInputComponent->BindAction(CharacterMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCharacter);
         EnhancedInputComponent->BindAction(CameraMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCamera);
+        EnhancedInputComponent->BindAction(BackstepAction, ETriggerEvent::Triggered, this, &APlayerCharacter::StartBackstep);
     }
 }
 
@@ -106,7 +107,13 @@ void APlayerCharacter::MoveCharacter(const FInputActionValue& AxisValue)
 {
     const FVector2d MovementVector = AxisValue.Get<FVector2D>();
     
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, MovementVector.ToString());
+    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, MovementVector.ToString());
+
+    /*
+        B (press) -> backstep
+        movement + B (hold) -> run
+        movement + B (press) -> roll
+    */
 
     const FRotator ControlRotation = Controller->GetControlRotation();
     const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
@@ -125,6 +132,27 @@ void APlayerCharacter::MoveCamera(const FInputActionValue& AxisValue)
     AddControllerPitchInput(LookVector.Y);
 }
 
+bool APlayerCharacter::IsBackstepping()
+{
+    return bIsBackstepping;
+}
+
+void APlayerCharacter::StopBackstep()
+{
+    bIsBackstepping = false;
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Backstep")));
+}
+
+void APlayerCharacter::StartBackstep()
+{
+    bIsBackstepping = true;
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Backstep")));
+}
+
+void APlayerCharacter::Roll(const FInputActionValue& Value)
+{
+}
+
 void APlayerCharacter::ParticleToggle()
 {
     if (ParticleSystem && ParticleSystem->Template)
@@ -133,7 +161,7 @@ void APlayerCharacter::ParticleToggle()
     }
 }
 
-void APlayerCharacter::SprintToggle()
+void APlayerCharacter::Sprint()
 {
     //GetCharacterMovement()->speedch
 }

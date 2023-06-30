@@ -34,6 +34,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = Input)
     void StopBackstep();
 
+    UFUNCTION(BlueprintCallable, Category = Input)
+    bool IsRolling();
+
+    UFUNCTION(BlueprintCallable, Category = Input)
+    void StopRoll();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -66,10 +72,16 @@ private:
     UInputAction* CameraMovementAction;
 
     UPROPERTY(EditAnywhere, Category = Input)
+    UInputAction* RollAction;
+
+    UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* BackstepAction;
 
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsSprinting;
+
+    UPROPERTY(VisibleAnywhere, Category = Gameplay)
+    bool bIsRolling;
 
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsBackstepping;
@@ -80,7 +92,8 @@ private:
     void MoveCharacter(const FInputActionValue& AxisValue);
     void MoveCamera(const FInputActionValue& AxisValue);
     void StartBackstep();
-    void Roll(const FInputActionValue& Value);
+    void StartRoll(const FInputActionValue& Value);
     void Sprint();
+    
     void ParticleToggle();
 };

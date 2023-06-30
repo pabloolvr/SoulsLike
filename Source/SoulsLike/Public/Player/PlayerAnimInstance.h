@@ -22,7 +22,10 @@ public:
     virtual void NativeUpdateAnimation(float DeltaTime) override;
     
     UFUNCTION(BlueprintCallable, Category = Input)
-    void StopBackstep();
+    void OnBackstepEnd();
+
+    UFUNCTION(BlueprintCallable, Category = Input)
+    void OnRollEnd();
 
     UPROPERTY(BlueprintReadOnly, Category = Character)
     class APlayerCharacter* PlayerCharacter;
@@ -35,4 +38,7 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category = Movement)
     bool IsBackstepping;
+
+    UPROPERTY(BlueprintReadOnly, Category = Movement)
+    bool IsRolling;
 };

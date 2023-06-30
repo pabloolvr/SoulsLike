@@ -21,10 +21,16 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaTime)
     {
         GroundSpeed = UKismetMathLibrary::VSizeXY(CharacterMovement->Velocity);
         IsBackstepping = PlayerCharacter->IsBackstepping();
+        IsRolling = PlayerCharacter->IsRolling();
     }
 }
 
-void UPlayerAnimInstance::StopBackstep()
+void UPlayerAnimInstance::OnBackstepEnd()
 {
-    PlayerCharacter->StopBackstep();   
+    PlayerCharacter->StopBackstep();
+}
+
+void UPlayerAnimInstance::OnRollEnd()
+{
+    PlayerCharacter->StopRoll();
 }

@@ -100,11 +100,25 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(CharacterMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCharacter);
         EnhancedInputComponent->BindAction(CameraMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCamera);
         EnhancedInputComponent->BindAction(BackstepAction, ETriggerEvent::Triggered, this, &APlayerCharacter::StartBackstep);
+        EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::StartRoll);
     }
 }
 
 void APlayerCharacter::MoveCharacter(const FInputActionValue& AxisValue)
 {
+    if (bIsRolling)
+    {
+        GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Rolling")));
+        return;
+    }
+    else if (bIsBackstepping)
+    {
+        GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Backstepping")));
+        return;
+    }
+
+    GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Moving")));
+    
     const FVector2d MovementVector = AxisValue.Get<FVector2D>();
     
     //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, MovementVector.ToString());
@@ -137,20 +151,42 @@ bool APlayerCharacter::IsBackstepping()
     return bIsBackstepping;
 }
 
+void APlayerCharacter::StartBackstep()
+{
+    if (!GetCharacterMovement()->Velocity.IsZero()) return;
+
+    bIsBackstepping = true;
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Backstep")));
+}
+
 void APlayerCharacter::StopBackstep()
 {
     bIsBackstepping = false;
     GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Backstep")));
 }
 
-void APlayerCharacter::StartBackstep()
+bool APlayerCharacter::IsRolling()
 {
-    bIsBackstepping = true;
-    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Backstep")));
+    return bIsRolling;
 }
 
-void APlayerCharacter::Roll(const FInputActionValue& Value)
+void APlayerCharacter::StartRoll(const FInputActionValue& Value)
 {
+    if (GetCharacterMovement()->Velocity.IsZero()) return;
+
+    bIsRolling = true;
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Roll")));
+}
+
+void APlayerCharacter::StopRoll()
+{
+    bIsRolling = false;
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Roll")));
+}
+
+void APlayerCharacter::Sprint()
+{
+    //GetCharacterMovement()->speedch
 }
 
 void APlayerCharacter::ParticleToggle()
@@ -161,8 +197,4 @@ void APlayerCharacter::ParticleToggle()
     }
 }
 
-void APlayerCharacter::Sprint()
-{
-    //GetCharacterMovement()->speedch
-}
 

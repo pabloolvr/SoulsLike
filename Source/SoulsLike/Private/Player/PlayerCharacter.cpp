@@ -88,6 +88,21 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+    DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 100.f, FColor::Red, false, -1.f, 0, 1.f);
+    GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, GetActorForwardVector().ToString());
+
+    if (bIsRolling)
+    {
+        //GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Rolling")));              
+        AddMovementInput(StartRollDirection, 1.f);
+    }
+    else if (bIsBackstepping)
+    {
+        //GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Backstepping")));
+        AddMovementInput(GetActorForwardVector(), -.75f);
+        AddMovementInput(StartBackstepDirection, .0001f);
+    }
 }
 
 // Called to bind functionality to input
@@ -105,30 +120,17 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 void APlayerCharacter::MoveCharacter(const FInputActionValue& AxisValue)
-{
-    if (bIsRolling)
+{  
+    if (bIsRolling || bIsBackstepping)
     {
-        GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Rolling")));
-        return;
-    }
-    else if (bIsBackstepping)
-    {
-        GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Backstepping")));
+        //GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Rolling")));
         return;
     }
 
-    GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Moving")));
-    
     const FVector2d MovementVector = AxisValue.Get<FVector2D>();
     
-    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, MovementVector.ToString());
-
-    /*
-        B (press) -> backstep
-        movement + B (hold) -> run
-        movement + B (press) -> roll
-    */
-
+    GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, MovementVector.ToString());
+    
     const FRotator ControlRotation = Controller->GetControlRotation();
     const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
     
@@ -155,6 +157,8 @@ void APlayerCharacter::StartBackstep()
 {
     if (!GetCharacterMovement()->Velocity.IsZero()) return;
 
+    StartBackstepDirection = GetActorForwardVector();
+
     bIsBackstepping = true;
     GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Backstep")));
 }
@@ -173,6 +177,8 @@ bool APlayerCharacter::IsRolling()
 void APlayerCharacter::StartRoll(const FInputActionValue& Value)
 {
     if (GetCharacterMovement()->Velocity.IsZero()) return;
+
+    StartRollDirection = GetActorForwardVector();
 
     bIsRolling = true;
     GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Roll")));

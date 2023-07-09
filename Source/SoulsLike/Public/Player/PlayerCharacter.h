@@ -74,20 +74,23 @@ private:
     UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* RollAction;
 
-    UPROPERTY(EditAnywhere, Category = Input)
+    UPROPERTY(VisibleAnywhere, Category = Gameplay)
     UInputAction* BackstepAction;
 
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsSprinting;
 
+    UPROPERTY(EditAnywhere, Category = Input)
+    FVector StartRollDirection;
+
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsRolling;
 
+    UPROPERTY(EditAnywhere, Category = Input)
+    FVector StartBackstepDirection;
+
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsBackstepping;
-    
-    UPROPERTY(EditAnywhere, Category = Gameplay)
-    float BackstepCooldown;
 
     void MoveCharacter(const FInputActionValue& AxisValue);
     void MoveCamera(const FInputActionValue& AxisValue);

@@ -62,6 +62,8 @@ APlayerCharacter::APlayerCharacter()
     Eyebrows = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrows"));
     Eyebrows->SetupAttachment(GetMesh());
     Eyebrows->AttachmentName = FString("head");
+
+    MovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 // Called when the game starts or when spawned
@@ -90,7 +92,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
     DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 100.f, FColor::Red, false, -1.f, 0, 1.f);
-    GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, GetActorForwardVector().ToString());
+    //GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, GetActorForwardVector().ToString());
+    GEngine->AddOnScreenDebugMessage(0, .1f, FColor::Red, GetCharacterMovement()->Velocity.ToString());
 
     if (bIsRolling)
     {
@@ -116,6 +119,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(CameraMovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveCamera);
         EnhancedInputComponent->BindAction(BackstepAction, ETriggerEvent::Triggered, this, &APlayerCharacter::StartBackstep);
         EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::StartRoll);
+        EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Sprint);
+        EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopSprint);
     }
 }
 
@@ -128,9 +133,7 @@ void APlayerCharacter::MoveCharacter(const FInputActionValue& AxisValue)
     }
 
     const FVector2d MovementVector = AxisValue.Get<FVector2D>();
-    
-    GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, MovementVector.ToString());
-    
+
     const FRotator ControlRotation = Controller->GetControlRotation();
     const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
     
@@ -176,7 +179,7 @@ bool APlayerCharacter::IsRolling()
 
 void APlayerCharacter::StartRoll(const FInputActionValue& Value)
 {
-    if (GetCharacterMovement()->Velocity.IsZero()) return;
+    if (GetCharacterMovement()->Velocity.IsZero() || bIsBackstepping) return;
 
     StartRollDirection = GetActorForwardVector();
 
@@ -190,9 +193,28 @@ void APlayerCharacter::StopRoll()
     GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Roll")));
 }
 
+bool APlayerCharacter::IsSprinting()
+{
+    return bIsSprinting;
+}
+
 void APlayerCharacter::Sprint()
 {
-    //GetCharacterMovement()->speedch
+    if (GetCharacterMovement()->Velocity.IsZero()) return;
+
+    if (!bIsBackstepping && !bIsRolling) 
+    {
+        bIsSprinting = true;
+        GetCharacterMovement()->MaxWalkSpeed = MovementSpeed * SprintSpeedMultiplier;
+    }
+}
+
+void APlayerCharacter::StopSprint()
+{
+    if (GetCharacterMovement()->Velocity.IsZero()) return;
+
+    GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
+    bIsSprinting = false;
 }
 
 void APlayerCharacter::ParticleToggle()

@@ -22,6 +22,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaTime)
         GroundSpeed = UKismetMathLibrary::VSizeXY(CharacterMovement->Velocity);
         IsBackstepping = PlayerCharacter->IsBackstepping();
         IsRolling = PlayerCharacter->IsRolling();
+        IsSprinting = PlayerCharacter->IsSprinting();
     }
 }
 

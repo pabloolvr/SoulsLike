@@ -40,6 +40,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = Input)
     void StopRoll();
 
+    UFUNCTION(BlueprintCallable, Category = Input)
+    bool IsSprinting();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -74,20 +77,29 @@ private:
     UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* RollAction;
 
-    UPROPERTY(VisibleAnywhere, Category = Gameplay)
+    UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* BackstepAction;
+
+    UPROPERTY(EditAnywhere, Category = Input)
+    UInputAction* SprintAction;
+
+    UPROPERTY(VisibleAnywhere, Category = Gameplay)
+    FVector StartRollDirection;
+
+    UPROPERTY(VisibleAnywhere, Category = Gameplay)
+    FVector StartBackstepDirection;
+
+    UPROPERTY(EditAnywhere, Category = Gameplay)
+    float SprintSpeedMultiplier;
+
+    UPROPERTY()
+    float MovementSpeed;
 
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsSprinting;
 
-    UPROPERTY(EditAnywhere, Category = Input)
-    FVector StartRollDirection;
-
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsRolling;
-
-    UPROPERTY(EditAnywhere, Category = Input)
-    FVector StartBackstepDirection;
 
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsBackstepping;
@@ -97,6 +109,7 @@ private:
     void StartBackstep();
     void StartRoll(const FInputActionValue& Value);
     void Sprint();
+    void StopSprint();
     
     void ParticleToggle();
 };

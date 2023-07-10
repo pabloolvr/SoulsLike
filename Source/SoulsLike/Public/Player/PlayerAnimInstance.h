@@ -41,4 +41,7 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category = Movement)
     bool IsRolling;
+
+    UPROPERTY(BlueprintReadOnly, Category = Movement)
+    bool IsSprinting;
 };

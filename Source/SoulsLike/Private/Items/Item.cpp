@@ -31,7 +31,7 @@ float AItem::TransformedCos()
 }
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    const FString OtherActorName = OtherActor->GetName();
+    const FString OtherActorName = FString("Begin Overlap with: ") + OtherActor->GetName();
     if (GEngine)
     {
         GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, OtherActorName);
@@ -40,7 +40,7 @@ void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    const FString OtherActorName = FString("Ending Overlap with: ") + OtherActor->GetName();
+    const FString OtherActorName = FString("End Overlap with: ") + OtherActor->GetName();
     if (GEngine)
     {
         GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Blue, OtherActorName);

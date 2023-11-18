@@ -23,6 +23,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaTime)
         IsBackstepping = PlayerCharacter->IsBackstepping();
         IsRolling = PlayerCharacter->IsRolling();
         IsSprinting = PlayerCharacter->IsSprinting();
+        CharacterState = PlayerCharacter->GetCharacterState();
     }
 }
 

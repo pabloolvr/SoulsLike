@@ -73,6 +73,8 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
     
+    CharacterState = ECharacterState::ECS_Unequipped;
+
     // Make sure that we have a valid PlayerController.
     if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
     {
@@ -226,6 +228,7 @@ void APlayerCharacter::Interact()
     if (Weapon)
     {
         Weapon->Equip(GetMesh(), "socket_hand_r");
+        CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
     }
 }
 

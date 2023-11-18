@@ -4,14 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Player/CharacterState.h"
 #include "PlayerAnimInstance.generated.h"
 
 class APlayerCharacter;
 class UCharacterMovementComponent;
 
-/**
- * 
- */
 UCLASS()
 class SOULSLIKE_API UPlayerAnimInstance : public UAnimInstance
 {
@@ -44,4 +42,7 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category = Movement)
     bool IsSprinting;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Movement | Character State")
+    ECharacterState CharacterState;
 };

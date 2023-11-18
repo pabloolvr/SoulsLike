@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
-#include "CharacterTypes.h"
+#include "CharacterState.h"
 #include "PlayerCharacter.generated.h"
 
 class UParticleSystemComponent;
@@ -112,6 +112,9 @@ private:
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     bool bIsBackstepping;
 
+    UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
+    ECharacterState CharacterState;
+
     void MoveCharacter(const FInputActionValue& AxisValue);
     void MoveCamera(const FInputActionValue& AxisValue);
     void StartBackstep();
@@ -125,4 +128,5 @@ private:
 public:
     FORCEINLINE void SetItemOnRange(AItem* Item) { ItemOnRange = Item; }
     FORCEINLINE AItem* GetItemOnRange() const { return ItemOnRange; }
+    FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 };

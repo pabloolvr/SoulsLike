@@ -15,7 +15,7 @@ class SOULSLIKE_API AWeapon : public AItem
 public:	
 	// Sets default values for this actor's properties
 	AWeapon();
-
+    void Equip(USceneComponent* Parent, FName SocketName);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

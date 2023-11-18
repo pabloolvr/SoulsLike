@@ -2,6 +2,8 @@
 
 
 #include "Items/Item.h"
+#include "Player/PlayerCharacter.h"
+#include "Items/Weapons/Weapon.h"
 #include "Components/SphereComponent.h"
 
 AItem::AItem()
@@ -31,19 +33,21 @@ float AItem::TransformedCos()
 }
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    const FString OtherActorName = FString("Begin Overlap with: ") + OtherActor->GetName();
-    if (GEngine)
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+
+    if (PlayerCharacter)
     {
-        GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, OtherActorName);
+        PlayerCharacter->SetItemOnRange(this);
     }
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    const FString OtherActorName = FString("End Overlap with: ") + OtherActor->GetName();
-    if (GEngine)
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+
+    if (PlayerCharacter)
     {
-        GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Blue, OtherActorName);
+        PlayerCharacter->SetItemOnRange(nullptr);
     }
 }
 

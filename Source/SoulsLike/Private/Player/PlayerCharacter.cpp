@@ -11,6 +11,8 @@
 #include "GroomComponent.h"
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
+#include "Items/Item.h"
+#include "Items/Weapons/Weapon.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -121,6 +123,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &APlayerCharacter::StartRoll);
         EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Sprint);
         EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopSprint);
+        EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
     }
 }
 
@@ -215,6 +218,15 @@ void APlayerCharacter::StopSprint()
 
     GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
     bIsSprinting = false;
+}
+
+void APlayerCharacter::Interact()
+{
+    AWeapon* Weapon = Cast<AWeapon>(ItemOnRange);
+    if (Weapon)
+    {
+        Weapon->Equip(GetMesh(), "socket_hand_r");
+    }
 }
 
 void APlayerCharacter::ParticleToggle()

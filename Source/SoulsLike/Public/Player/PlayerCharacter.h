@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "CharacterTypes.h"
 #include "PlayerCharacter.generated.h"
 
 class UParticleSystemComponent;
@@ -14,6 +15,7 @@ class UCameraComponent;
 class UGroomComponent;
 class UInputMappingContext;
 class UInputAction;
+class AItem;
 
 UCLASS()
 class SOULSLIKE_API APlayerCharacter : public ACharacter
@@ -83,11 +85,17 @@ private:
     UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* SprintAction;
 
+    UPROPERTY(EditAnywhere, Category = Input)
+    UInputAction* InteractAction;
+
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     FVector StartRollDirection;
 
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     FVector StartBackstepDirection;
+
+    UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
+    AItem* ItemOnRange;
 
     UPROPERTY(EditAnywhere, Category = Gameplay)
     float SprintSpeedMultiplier;
@@ -110,6 +118,11 @@ private:
     void StartRoll(const FInputActionValue& Value);
     void Sprint();
     void StopSprint();
+    void Interact();
     
     void ParticleToggle();
+
+public:
+    FORCEINLINE void SetItemOnRange(AItem* Item) { ItemOnRange = Item; }
+    FORCEINLINE AItem* GetItemOnRange() const { return ItemOnRange; }
 };

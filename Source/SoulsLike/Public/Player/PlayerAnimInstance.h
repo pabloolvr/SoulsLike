@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "Player/CharacterState.h"
+#include "Player/CharacterStates.h"
 #include "PlayerAnimInstance.generated.h"
 
 class APlayerCharacter;
@@ -19,12 +19,6 @@ public:
     virtual void NativeInitializeAnimation() override;
     virtual void NativeUpdateAnimation(float DeltaTime) override;
     
-    UFUNCTION(BlueprintCallable, Category = Input)
-    void OnBackstepEnd();
-
-    UFUNCTION(BlueprintCallable, Category = Input)
-    void OnRollEnd();
-
     UPROPERTY(BlueprintReadOnly, Category = Character)
     class APlayerCharacter* PlayerCharacter;
     
@@ -43,6 +37,6 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = Movement)
     bool IsSprinting;
 
-    UPROPERTY(BlueprintReadOnly, Category = "Movement | Character State")
-    ECharacterState CharacterState;
+    UPROPERTY(BlueprintReadOnly, Category = "Movement | Weapon Equip State")
+    EWeaponEquipState WeaponEquipState;
 };

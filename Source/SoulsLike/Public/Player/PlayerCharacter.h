@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
-#include "CharacterState.h"
+#include "CharacterStates.h"
 #include "PlayerCharacter.generated.h"
 
 class UParticleSystemComponent;
@@ -16,6 +16,8 @@ class UGroomComponent;
 class UInputMappingContext;
 class UInputAction;
 class AItem;
+class UAnimMontage;
+class AWeapon;
 
 UCLASS()
 class SOULSLIKE_API APlayerCharacter : public ACharacter
@@ -30,25 +32,30 @@ public:
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-    UFUNCTION(BlueprintCallable, Category = Input)
-    bool IsBackstepping();
-
-    UFUNCTION(BlueprintCallable, Category = Input)
+    UFUNCTION(BlueprintCallable, Category = Animation)
     void StopBackstep();
 
-    UFUNCTION(BlueprintCallable, Category = Input)
-    bool IsRolling();
-
-    UFUNCTION(BlueprintCallable, Category = Input)
+    UFUNCTION(BlueprintCallable, Category = Animation)
     void StopRoll();
 
-    UFUNCTION(BlueprintCallable, Category = Input)
-    bool IsSprinting();
+    UFUNCTION(BlueprintCallable, Category = Animation)
+    void StopAttack();
+
+    FORCEINLINE bool IsBackstepping() const { return bIsBackstepping; }
+    FORCEINLINE bool IsRolling() const { return bIsRolling; }
+    FORCEINLINE bool IsSprinting() const { return bIsSprinting; }
+
+    FORCEINLINE void SetItemOnRange(AItem* Item) { ItemOnRange = Item; }
+    FORCEINLINE AItem* GetItemOnRange() const { return ItemOnRange; }
+
+    FORCEINLINE EWeaponEquipState GetWeaponEquipState() const { return WeaponEquipState; }
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
+    /* Components References */
+
     UPROPERTY(VisibleAnywhere, Category = Components)
     UParticleSystemComponent* ParticleSystem;
 
@@ -66,6 +73,8 @@ private:
 
     UPROPERTY(VisibleAnywhere, Category = Components)
     UGroomComponent* Eyebrows;
+
+    /* Input Actions */
 
     UPROPERTY(EditAnywhere, Category = Input)
     UInputMappingContext* InputContext;
@@ -88,6 +97,14 @@ private:
     UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* InteractAction;
 
+    UPROPERTY(EditAnywhere, Category = Input)
+    UInputAction* RightHandAttackAction;
+
+    UPROPERTY(EditAnywhere, Category = Input)
+    UInputAction* LeftHandAttackAction;
+
+    /* Gameplay variables */
+
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     FVector StartRollDirection;
 
@@ -100,7 +117,7 @@ private:
     UPROPERTY(EditAnywhere, Category = Gameplay)
     float SprintSpeedMultiplier;
 
-    UPROPERTY()
+    UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
     float MovementSpeed;
 
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
@@ -113,8 +130,28 @@ private:
     bool bIsBackstepping;
 
     UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
-    ECharacterState CharacterState;
+    EWeaponEquipState WeaponEquipState = EWeaponEquipState::ECS_Unequipped;
 
+    UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
+    EActionState ActionState = EActionState::ECS_Unoccupied;
+
+    /* Equipped Items References */
+
+    UPROPERTY(VisibleInstanceOnly, Category = Equips)
+    AWeapon* EquippedRightWeapon;
+
+    UPROPERTY(VisibleInstanceOnly, Category = Equips)
+    AWeapon* EquippedLeftWeapon;
+
+    /* Montages */
+
+    UPROPERTY(EditDefaultsOnly, Category = Montages)
+    UAnimMontage* RightHandAttackMontage;
+
+    UPROPERTY(EditDefaultsOnly, Category = Montages)
+    UAnimMontage* LeftHandAttackMontage;
+
+    /* Input Callbacks */
     void MoveCharacter(const FInputActionValue& AxisValue);
     void MoveCamera(const FInputActionValue& AxisValue);
     void StartBackstep();
@@ -122,11 +159,13 @@ private:
     void Sprint();
     void StopSprint();
     void Interact();
-    
+    void RightHandAttack();
+    void LeftHandAttack();   
     void ParticleToggle();
 
-public:
-    FORCEINLINE void SetItemOnRange(AItem* Item) { ItemOnRange = Item; }
-    FORCEINLINE AItem* GetItemOnRange() const { return ItemOnRange; }
-    FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+    /* Gameplay functions */
+    void EquipOneHandedWeapon(AWeapon* Weapon, bool bOnRightHand);
+
+    /* Montage play functions */
+    void PlayAttackMontage(bool bOnRightHand);
 };

@@ -9,6 +9,7 @@
 void UPlayerAnimInstance::NativeInitializeAnimation()
 {
     PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
+
     if (PlayerCharacter) 
     {
         CharacterMovement = PlayerCharacter->GetCharacterMovement();
@@ -23,16 +24,6 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaTime)
         IsBackstepping = PlayerCharacter->IsBackstepping();
         IsRolling = PlayerCharacter->IsRolling();
         IsSprinting = PlayerCharacter->IsSprinting();
-        CharacterState = PlayerCharacter->GetCharacterState();
+        WeaponEquipState = PlayerCharacter->GetWeaponEquipState();
     }
-}
-
-void UPlayerAnimInstance::OnBackstepEnd()
-{
-    PlayerCharacter->StopBackstep();
-}
-
-void UPlayerAnimInstance::OnRollEnd()
-{
-    PlayerCharacter->StopRoll();
 }

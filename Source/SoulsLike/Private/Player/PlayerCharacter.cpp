@@ -13,6 +13,7 @@
 #include <EnhancedInputSubsystems.h>
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
+#include "Animation/AnimMontage.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -73,8 +74,6 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
     
-    CharacterState = ECharacterState::ECS_Unequipped;
-
     // Make sure that we have a valid PlayerController.
     if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
     {
@@ -126,6 +125,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Sprint);
         EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopSprint);
         EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
+        EnhancedInputComponent->BindAction(RightHandAttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RightHandAttack);
+        EnhancedInputComponent->BindAction(LeftHandAttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::LeftHandAttack);
     }
 }
 
@@ -156,11 +157,6 @@ void APlayerCharacter::MoveCamera(const FInputActionValue& AxisValue)
     AddControllerPitchInput(LookVector.Y);
 }
 
-bool APlayerCharacter::IsBackstepping()
-{
-    return bIsBackstepping;
-}
-
 void APlayerCharacter::StartBackstep()
 {
     if (!GetCharacterMovement()->Velocity.IsZero()) return;
@@ -177,11 +173,6 @@ void APlayerCharacter::StopBackstep()
     GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Backstep")));
 }
 
-bool APlayerCharacter::IsRolling()
-{
-    return bIsRolling;
-}
-
 void APlayerCharacter::StartRoll(const FInputActionValue& Value)
 {
     if (GetCharacterMovement()->Velocity.IsZero() || bIsBackstepping) return;
@@ -196,11 +187,6 @@ void APlayerCharacter::StopRoll()
 {
     bIsRolling = false;
     GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Roll")));
-}
-
-bool APlayerCharacter::IsSprinting()
-{
-    return bIsSprinting;
 }
 
 void APlayerCharacter::Sprint()
@@ -225,10 +211,55 @@ void APlayerCharacter::StopSprint()
 void APlayerCharacter::Interact()
 {
     AWeapon* Weapon = Cast<AWeapon>(ItemOnRange);
+
     if (Weapon)
     {
-        Weapon->Equip(GetMesh(), "socket_hand_r");
-        CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+        if (!EquippedRightWeapon)
+        {
+            EquipOneHandedWeapon(Weapon, true);
+            return;
+        }
+        
+        if (!EquippedLeftWeapon)
+        {
+            EquipOneHandedWeapon(Weapon, false);
+            return;
+        }
+    }
+}
+
+void APlayerCharacter::RightHandAttack()
+{
+    if (ActionState == EActionState::ECS_Unoccupied) 
+    {
+        PlayAttackMontage(true);
+        ActionState = EActionState::ECS_Attacking;
+    }
+}
+
+void APlayerCharacter::LeftHandAttack()
+{
+    if (ActionState == EActionState::ECS_Unoccupied)
+    {
+        PlayAttackMontage(false);
+        ActionState = EActionState::ECS_Attacking;
+    }
+}
+
+void APlayerCharacter::StopAttack()
+{
+    ActionState = EActionState::ECS_Unoccupied;
+}
+
+void APlayerCharacter::PlayAttackMontage(bool bOnRightHand)
+{
+    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+    UAnimMontage* AttackMontage = bOnRightHand ? RightHandAttackMontage : LeftHandAttackMontage;
+
+    if (AnimInstance && AttackMontage)
+    {
+        AnimInstance->Montage_Play(AttackMontage);
+        AnimInstance->Montage_JumpToSection(FName("Attack1"), AttackMontage);
     }
 }
 
@@ -237,6 +268,26 @@ void APlayerCharacter::ParticleToggle()
     if (ParticleSystem && ParticleSystem->Template)
     {
         ParticleSystem->ToggleActive();
+    }
+}
+
+void APlayerCharacter::EquipOneHandedWeapon(AWeapon* Weapon, bool bOnRightHand)
+{
+    if (Weapon)
+    {
+        if (bOnRightHand)
+        {
+            Weapon->Equip(GetMesh(), "socket_hand_r");
+            EquippedRightWeapon = Weapon;
+            WeaponEquipState = EquippedLeftWeapon? EWeaponEquipState::ECS_EquippedDualWield : EWeaponEquipState::ECS_EquippedRightHandedWeapon;
+        }
+        else
+        {
+            Weapon->Equip(GetMesh(), "socket_hand_l");
+            EquippedLeftWeapon = Weapon;
+            WeaponEquipState = EquippedRightWeapon ? EWeaponEquipState::ECS_EquippedDualWield : EWeaponEquipState::ECS_EquippedRightHandedWeapon;
+        }
+
     }
 }
 

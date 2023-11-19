@@ -15,7 +15,13 @@ class SOULSLIKE_API AWeapon : public AItem
 public:	
 	// Sets default values for this actor's properties
 	AWeapon();
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
+
     void Equip(USceneComponent* Parent, FName SocketName);
+
+    void Unequip();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -24,8 +30,9 @@ protected:
 
     virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+    bool bIsEquipped = false;
 
+public:	
+    FORCEINLINE bool IsEquipped() const { return bIsEquipped; }
 };

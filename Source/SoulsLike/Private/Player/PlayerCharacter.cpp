@@ -98,12 +98,12 @@ void APlayerCharacter::Tick(float DeltaTime)
     //GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, GetActorForwardVector().ToString());
     GEngine->AddOnScreenDebugMessage(0, .1f, FColor::Red, GetCharacterMovement()->Velocity.ToString());
 
-    if (bIsRolling)
+    if (ActionState == EActionState::ECS_Rolling)
     {
         //GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Rolling")));              
         AddMovementInput(StartRollDirection, 1.f);
     }
-    else if (bIsBackstepping)
+    else if (ActionState == EActionState::ECS_Backstepping)
     {
         //GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Backstepping")));
         AddMovementInput(GetActorForwardVector(), -.75f);
@@ -132,11 +132,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::MoveCharacter(const FInputActionValue& AxisValue)
 {  
-    if (bIsRolling || bIsBackstepping)
-    {
-        //GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Red, FString::Printf(TEXT("Rolling")));
-        return;
-    }
+    if (ActionState != EActionState::ECS_Idle && ActionState != EActionState::ECS_Sprinting) return;
 
     const FVector2d MovementVector = AxisValue.Get<FVector2D>();
 
@@ -160,52 +156,48 @@ void APlayerCharacter::MoveCamera(const FInputActionValue& AxisValue)
 void APlayerCharacter::StartBackstep()
 {
     if (!GetCharacterMovement()->Velocity.IsZero()) return;
+    if (ActionState != EActionState::ECS_Idle) return;
 
     StartBackstepDirection = GetActorForwardVector();
-
-    bIsBackstepping = true;
-    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Backstep")));
+    ActionState = EActionState::ECS_Backstepping;
+    //GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Backstep")));
 }
 
 void APlayerCharacter::StopBackstep()
 {
-    bIsBackstepping = false;
-    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Backstep")));
+    ActionState = EActionState::ECS_Idle;
 }
 
 void APlayerCharacter::StartRoll(const FInputActionValue& Value)
 {
-    if (GetCharacterMovement()->Velocity.IsZero() || bIsBackstepping) return;
+    if (GetCharacterMovement()->Velocity.IsZero()) return;
+    if (ActionState != EActionState::ECS_Idle && ActionState != EActionState::ECS_Sprinting) return;
 
     StartRollDirection = GetActorForwardVector();
-
-    bIsRolling = true;
-    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Started Roll")));
+    ActionState = EActionState::ECS_Rolling;
 }
 
 void APlayerCharacter::StopRoll()
 {
-    bIsRolling = false;
-    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Roll")));
+    ActionState = EActionState::ECS_Idle;
+    //GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Stopped Roll")));
 }
 
 void APlayerCharacter::Sprint()
 {
     if (GetCharacterMovement()->Velocity.IsZero()) return;
+    if (ActionState != EActionState::ECS_Idle) return;
 
-    if (!bIsBackstepping && !bIsRolling) 
-    {
-        bIsSprinting = true;
-        GetCharacterMovement()->MaxWalkSpeed = MovementSpeed * SprintSpeedMultiplier;
-    }
+    ActionState = EActionState::ECS_Sprinting;
+    GetCharacterMovement()->MaxWalkSpeed = MovementSpeed * SprintSpeedMultiplier;
 }
 
 void APlayerCharacter::StopSprint()
 {
     if (GetCharacterMovement()->Velocity.IsZero()) return;
 
+    ActionState = EActionState::ECS_Idle;
     GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
-    bIsSprinting = false;
 }
 
 void APlayerCharacter::Interact()
@@ -230,7 +222,7 @@ void APlayerCharacter::Interact()
 
 void APlayerCharacter::RightHandAttack()
 {
-    if (ActionState == EActionState::ECS_Unoccupied) 
+    if (ActionState == EActionState::ECS_Idle) 
     {
         PlayAttackMontage(true);
         ActionState = EActionState::ECS_Attacking;
@@ -239,7 +231,7 @@ void APlayerCharacter::RightHandAttack()
 
 void APlayerCharacter::LeftHandAttack()
 {
-    if (ActionState == EActionState::ECS_Unoccupied)
+    if (ActionState == EActionState::ECS_Idle)
     {
         PlayAttackMontage(false);
         ActionState = EActionState::ECS_Attacking;
@@ -248,7 +240,7 @@ void APlayerCharacter::LeftHandAttack()
 
 void APlayerCharacter::StopAttack()
 {
-    ActionState = EActionState::ECS_Unoccupied;
+    ActionState = EActionState::ECS_Idle;
 }
 
 void APlayerCharacter::PlayAttackMontage(bool bOnRightHand)

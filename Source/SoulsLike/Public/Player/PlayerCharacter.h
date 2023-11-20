@@ -41,9 +41,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = Animation)
     void StopAttack();
 
-    FORCEINLINE bool IsBackstepping() const { return bIsBackstepping; }
-    FORCEINLINE bool IsRolling() const { return bIsRolling; }
-    FORCEINLINE bool IsSprinting() const { return bIsSprinting; }
+    FORCEINLINE bool IsBackstepping() const { return ActionState == EActionState::ECS_Backstepping; }
+    FORCEINLINE bool IsRolling() const { return ActionState == EActionState::ECS_Rolling; }
+    FORCEINLINE bool IsSprinting() const { return ActionState == EActionState::ECS_Sprinting; }
 
     FORCEINLINE void SetItemOnRange(AItem* Item) { ItemOnRange = Item; }
     FORCEINLINE AItem* GetItemOnRange() const { return ItemOnRange; }
@@ -120,20 +120,11 @@ private:
     UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
     float MovementSpeed;
 
-    UPROPERTY(VisibleAnywhere, Category = Gameplay)
-    bool bIsSprinting;
-
-    UPROPERTY(VisibleAnywhere, Category = Gameplay)
-    bool bIsRolling;
-
-    UPROPERTY(VisibleAnywhere, Category = Gameplay)
-    bool bIsBackstepping;
-
     UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
     EWeaponEquipState WeaponEquipState = EWeaponEquipState::ECS_Unequipped;
 
     UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
-    EActionState ActionState = EActionState::ECS_Unoccupied;
+    EActionState ActionState = EActionState::ECS_Idle;
 
     /* Equipped Items References */
 

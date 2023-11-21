@@ -32,6 +32,9 @@ public:
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+    UFUNCTION(BlueprintCallable, Category = Combat)
+    void SetWeaponCollisionEnabled(bool Active, bool bOnRightHand);
+
     UFUNCTION(BlueprintCallable, Category = Animation)
     void StopBackstep();
 
@@ -54,7 +57,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-    /* Components References */
+    // Components References
 
     UPROPERTY(VisibleAnywhere, Category = Components)
     UParticleSystemComponent* ParticleSystem;
@@ -74,7 +77,7 @@ private:
     UPROPERTY(VisibleAnywhere, Category = Components)
     UGroomComponent* Eyebrows;
 
-    /* Input Actions */
+    // Input Actions
 
     UPROPERTY(EditAnywhere, Category = Input)
     UInputMappingContext* InputContext;
@@ -103,8 +106,7 @@ private:
     UPROPERTY(EditAnywhere, Category = Input)
     UInputAction* LeftHandAttackAction;
 
-    /* Gameplay variables */
-
+    // Gameplay variables
     UPROPERTY(VisibleAnywhere, Category = Gameplay)
     FVector StartRollDirection;
 
@@ -126,16 +128,19 @@ private:
     UPROPERTY(VisibleInstanceOnly, Category = Gameplay)
     EActionState ActionState = EActionState::ECS_Idle;
 
-    /* Equipped Items References */
-
+    // Equipped Items References
+    /* Holds reference to weapon hold on the right hand, the main hand. 
+        If wearing a two handed weapon, this will have the same value as EquippedLeftWeapon.
+    */
     UPROPERTY(VisibleInstanceOnly, Category = Equips)
     AWeapon* EquippedRightWeapon;
-
+    /* Holds reference to weapon hold on the left hand, the off-hand.
+        If wearing a two handed weapon, this will have the same value as EquippedRightWeapon.
+    */
     UPROPERTY(VisibleInstanceOnly, Category = Equips)
     AWeapon* EquippedLeftWeapon;
 
-    /* Montages */
-
+    // Montages
     UPROPERTY(EditDefaultsOnly, Category = Montages)
     UAnimMontage* RightHandAttackMontage;
 

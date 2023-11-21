@@ -14,6 +14,7 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -209,15 +210,17 @@ void APlayerCharacter::Interact()
         if (!EquippedRightWeapon)
         {
             EquipOneHandedWeapon(Weapon, true);
+            ItemOnRange = nullptr;
             return;
         }
         
         if (!EquippedLeftWeapon)
         {
             EquipOneHandedWeapon(Weapon, false);
+            ItemOnRange = nullptr;
             return;
         }
-    }
+    }   
 }
 
 void APlayerCharacter::RightHandAttack()
@@ -255,11 +258,21 @@ void APlayerCharacter::PlayAttackMontage(bool bOnRightHand)
     }
 }
 
-void APlayerCharacter::ParticleToggle()
+void APlayerCharacter::SetWeaponCollisionEnabled(bool Active, bool bOnRightHand)
 {
-    if (ParticleSystem && ParticleSystem->Template)
+    if (bOnRightHand)
     {
-        ParticleSystem->ToggleActive();
+        if (EquippedRightWeapon && EquippedRightWeapon->GetCollisionBox())
+        {
+            EquippedRightWeapon->GetCollisionBox()->SetCollisionEnabled(Active ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
+        }
+    }
+    else
+    {
+        if (EquippedLeftWeapon && EquippedLeftWeapon->GetCollisionBox())
+        {
+            EquippedLeftWeapon->GetCollisionBox()->SetCollisionEnabled(Active ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
+        }
     }
 }
 
@@ -280,6 +293,14 @@ void APlayerCharacter::EquipOneHandedWeapon(AWeapon* Weapon, bool bOnRightHand)
             WeaponEquipState = EquippedRightWeapon ? EWeaponEquipState::ECS_EquippedDualWield : EWeaponEquipState::ECS_EquippedRightHandedWeapon;
         }
 
+    }
+}
+
+void APlayerCharacter::ParticleToggle()
+{
+    if (ParticleSystem && ParticleSystem->Template)
+    {
+        ParticleSystem->ToggleActive();
     }
 }
 
